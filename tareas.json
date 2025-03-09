@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "descripcion": "Constancia Prog",
+        "completada": false
+    },
+    {
+        "id": 2,
+        "descripcion": "Ganar plata",
+        "completada": false
+    },
+    {
+        "id": 3,
+        "descripcion": "ToDoList Completed",
+        "completada": false
+    },
+    {
+        "id": 4,
+        "descripcion": "poder modificar la tarea",
+        "completada": true
+    },
+    {
+        "id": 5,
+        "descripcion": "Eliminar tareas",
+        "completada": true
+    },
+    {
+        "id": 6,
+        "descripcion": "Reordenar las tareas",
+        "completada": false
+    }
+]
