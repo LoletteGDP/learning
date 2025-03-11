@@ -1,6 +1,5 @@
-from asyncio.windows_events import NULL
 import json
-import datetime
+from datetime import datetime
 
 # Archivo donde se guardarán las tareas
 ARCHIVO_TAREAS = "tareas.json"
@@ -19,85 +18,86 @@ def guardar_tareas(tareas):
     with open(ARCHIVO_TAREAS, "w", encoding="utf-8") as archivo:
         json.dump(tareas, archivo, indent=4)
 
-# FUncion Agregar tareas
+# Agregar tarea
 def agregar_tarea(tareas, descripcion):
     nueva_tarea = {
         "id": len(tareas) + 1,  # ID autoincremental
         "descripcion": descripcion,
-        "completada": False
+        "completada": False,
+        "fecha_limite": None  # Inicialmente sin fecha límite
     }
     tareas.append(nueva_tarea)
     guardar_tareas(tareas)
     print("✅ Tarea agregada con éxito.")
 
-# Funcion Listar 
+# Listar tareas
 def listar_tareas(tareas):
     if not tareas:
         print("📭 No hay tareas registradas.")
         return
+    
     print("\n📋 Lista de tareas:")
     for tarea in tareas:
         estado = "✔️" if tarea["completada"] else "❌"
-        tarea["fecha_limite"] = tarea.get("fecha_limite", "")  # Evita errores si no tiene fecha límite
-        print(f"{tarea['id']}. {tarea['descripcion']} [{estado}]{tarea['fecha_limite']}")
+        fecha_limite = tarea.get("fecha_limite", "Sin fecha")  # Evita errores
+        
+        tiempo = tiempo_restante(tarea) if fecha_limite != "Sin fecha" else "N/A"
+        print(f"{tarea['id']}. {tarea['descripcion']} [{estado}] - Fecha límite: {fecha_limite} - ⏳ {tiempo}")
 
-# Marcar Tarea o desmarcar  
+# Marcar o desmarcar tareas
 def marcar_tarea(tareas):
     listar_tareas(tareas)
-    id_select = input("\ningrese id de la tarea a marcar: ")
+    id_select = input("\nIngrese ID de la tarea a marcar/desmarcar: ")
+    
     try:
-        id_select = int(id_select)  # Convertir a entero
+        id_select = int(id_select)
         for tarea in tareas:
             if tarea['id'] == id_select:
                 tarea["completada"] = not tarea["completada"]
-                guardar_tareas(tareas)  # Guardar cambios en el archivo
+                guardar_tareas(tareas)
                 estado = "✔️" if tarea["completada"] else "❌"
-                print(f"[{estado}] Tarea '{tarea['descripcion']}' marcada.")
+                print(f"[{estado}] Tarea '{tarea['descripcion']}' actualizada.")
                 return
         print("⚠️ No se encontró una tarea con ese ID.")
     except ValueError:
         print("⚠️ Ingresa un número válido.")
 
-
+# Eliminar tarea
 def eliminar_tareas(tareas):
     listar_tareas(tareas)
-    id_select = input("\ningrese id de la tarea a eliminar: ")
+    id_select = input("\nIngrese ID de la tarea a eliminar: ")
+    
     try:
-        id_select = int(id_select)  # Convertir a entero
-        for tarea in tareas:
-            if tarea['id'] == id_select:
-                tareas.remove(tarea)
-                guardar_tareas(tareas) # Guardar cambios en el archivo
-                correcion_IDs(tareas)  
-                print(f"Tarea '{tarea['descripcion']}' eliminada.")
-                return
-        print("⚠️ No se encontró una tarea con ese ID.")
+        id_select = int(id_select)
+        tareas[:] = [tarea for tarea in tareas if tarea['id'] != id_select]  # Filtrar la tarea eliminada
+        correcion_IDs(tareas)
+        guardar_tareas(tareas)
+        print("🗑 Tarea eliminada con éxito.")
     except ValueError:
         print("⚠️ Ingresa un número válido.")
 
-# Reasignar IDs en orden
+# Reasignar IDs
 def correcion_IDs(tareas):
     for i, tarea in enumerate(tareas, start=1):
         tarea["id"] = i
-    guardar_tareas(tareas)  # Guardar cambios en el archivo 
+    guardar_tareas(tareas)
 
-import datetime
-
+# Asignar fecha límite a una tarea
 def limitar_fecha(tareas):
     listar_tareas(tareas)
     id_select = input("\nIngrese el ID de la tarea para establecer la fecha límite: ")
     
     try:
-        id_select = int(id_select)  # Convertir ID a entero
+        id_select = int(id_select)
         
         for tarea in tareas:
             if tarea['id'] == id_select:
                 fecha_texto = input("Ingrese la fecha límite (ejemplo: '25-12-2024 09:30'): ")
-                fecha_limit = datetime.datetime.strptime(fecha_texto, "%d-%m-%Y %H:%M")
+                fecha_limit = datetime.strptime(fecha_texto, "%d-%m-%Y %H:%M")
                 
                 # Guardar la fecha límite en la tarea
                 tarea["fecha_limite"] = fecha_limit.strftime("%d-%m-%Y %H:%M")
-                guardar_tareas(tareas)  # Guardar cambios en el archivo JSON
+                guardar_tareas(tareas)
 
                 print(f"✅ Fecha límite establecida: {tarea['fecha_limite']}")                                
                 return
@@ -105,23 +105,23 @@ def limitar_fecha(tareas):
         print("⚠️ No se encontró una tarea con ese ID.")
     
     except ValueError:
-        print("⚠️ Ingresa un número válido.")
+        print("⚠️ Ingresa un formato de fecha válido.")
 
+# Calcular tiempo restante de una tarea
+def tiempo_restante(tarea):
+    fecha_texto = tarea.get("fecha_limite")
+    if fecha_texto:
+        try:
+            fecha_obj = datetime.strptime(fecha_texto, "%d-%m-%Y %H:%M")
+            tiempo_rest = fecha_obj - datetime.now()
 
-def tiempo_restante(tareas):
-    for tarea in tareas:
-        fecha_texto = tarea.get("fecha_limite")  # Puede ser None o ""
-        if fecha_texto:  # Solo procesar si existe una fecha
-            try:
-                # Convertir el string a datetime
-                fecha_obj = datetime.datetime.strptime(fecha_texto, "%d-%m-%Y %H:%M")
-                tiempo_restante = fecha_obj - datetime.datetime.now()
-                tarea = tarea
-
-            except ValueError:
-                print(f"⚠️ Error: La fecha '{fecha_texto}' tiene un formato incorrecto.")
-
-    return " y "  # No parece útil, puedes quitarlo
+            if tiempo_rest.total_seconds() > 0:
+                return f"{tiempo_rest.days} días, {tiempo_rest.seconds // 3600} horas"
+            else:
+                return "⏳ Vencida"
+        except ValueError:
+            return "⚠️ Fecha incorrecta"
+    return "N/A"
 
 # Función principal del menú
 def main():
@@ -131,11 +131,11 @@ def main():
         print("\nGestor de Tareas - Menú")
         print("1. Agregar tarea")
         print("2. Listar tareas")
-        print("3. Marcar Tareas")
-        print("4. Eliminar Tareas")
-        print("5. Fecha Limite")
-        print(" . Salir")
-        
+        print("3. Marcar tarea")
+        print("4. Eliminar tarea")
+        print("5. Establecer fecha límite")
+        print("6. Salir")
+
         opcion = input("Selecciona una opción: ")
 
         if opcion == "1":
@@ -152,9 +152,9 @@ def main():
             eliminar_tareas(tareas)
 
         elif opcion == "5":
-            tiempo_restante(tareas)
+            limitar_fecha(tareas)
 
-        elif opcion == "":
+        elif opcion == "6":
             print("👋 Saliendo del gestor de tareas...")
             break
 
@@ -163,5 +163,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

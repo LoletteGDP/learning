@@ -15,7 +15,7 @@
         "id": 3,
         "descripcion": "ToDoList Completed",
         "completada": false,
-        "fecha_limite": ""
+        "fecha_limite": "20-03-2025 20:30"
     },
     {
         "id": 4,
@@ -38,7 +38,7 @@
     {
         "id": 7,
         "descripcion": "Fecha limite",
-        "completada": false,
+        "completada": true,
         "fecha_limite": "12-03-2025 16:00"
     },
     {
