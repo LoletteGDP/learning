@@ -116,9 +116,7 @@ def tiempo_restante(tareas):
                 # Convertir el string a datetime
                 fecha_obj = datetime.datetime.strptime(fecha_texto, "%d-%m-%Y %H:%M")
                 tiempo_restante = fecha_obj - datetime.datetime.now()
-
-                # Mostrar el tiempo restante en días y horas
-                print(f"⏳ Tiempo restante: {tiempo_restante.days} días, {tiempo_restante.seconds // 3600} horas")                   
+                tarea = tarea
 
             except ValueError:
                 print(f"⚠️ Error: La fecha '{fecha_texto}' tiene un formato incorrecto.")
