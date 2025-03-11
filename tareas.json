@@ -2,31 +2,49 @@
     {
         "id": 1,
         "descripcion": "Constancia Prog",
-        "completada": false
+        "completada": false,
+        "fecha_limite": ""
     },
     {
         "id": 2,
         "descripcion": "Ganar plata",
-        "completada": false
+        "completada": false,
+        "fecha_limite": ""
     },
     {
         "id": 3,
         "descripcion": "ToDoList Completed",
-        "completada": false
+        "completada": false,
+        "fecha_limite": ""
     },
     {
         "id": 4,
         "descripcion": "poder modificar la tarea",
-        "completada": true
+        "completada": true,
+        "fecha_limite": ""
     },
     {
         "id": 5,
         "descripcion": "Eliminar tareas",
-        "completada": true
+        "completada": true,
+        "fecha_limite": ""
     },
     {
         "id": 6,
         "descripcion": "Reordenar las tareas",
-        "completada": false
+        "completada": false,
+        "fecha_limite": ""
+    },
+    {
+        "id": 7,
+        "descripcion": "Fecha limite",
+        "completada": false,
+        "fecha_limite": "12-03-2025 16:00"
+    },
+    {
+        "id": 8,
+        "descripcion": "aprender python",
+        "completada": false,
+        "fecha_limite": "30-05-2025 12:00"
     }
 ]
