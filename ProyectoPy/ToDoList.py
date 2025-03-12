@@ -38,12 +38,14 @@ def agregar_tarea(tareas, descripcion, importancia):
             print("3. baja")
             importancia = input("\nIngrese nivel de importancia:")            
     nueva_tarea = {
-        "id": len(tareas) + 1,  # ID autoincremental
+        "id": len(tareas) + 1,
         "descripcion": descripcion,
         "prioridad": importancia,
         "completada": False,
-        "fecha_limite": None  # Inicialmente sin fecha límite
+        "fecha_limite": None,
+        "completada_a_tiempo": None  # No se ha completado aún
     }
+
     tareas.append(nueva_tarea)
     guardar_tareas(tareas)
     print("✅ Tarea agregada con éxito.")
@@ -68,7 +70,8 @@ def listar_tareas(tareas):
         tiempo = tiempo_restante(tarea) if fecha_limite != "Sin fecha" else "N/A"
 
         estado = "✔️" if tarea["completada"] else "❌"
-        tarea_info = f"{tarea['id']}. {tarea['descripcion']} [{estado}]\n - Fecha límite: {fecha_limite} - ⏳ Tiempo restante: {tiempo}"
+        tarea_info = f"{tarea['id']}. {tarea['descripcion']} [{estado}] {Cumplimiento(tarea)}\n - Fecha límite: {fecha_limite} - ⏳ Tiempo restante: {tiempo}"
+
 
         if prioridad == "alta":
             tareas_alta.append(tarea_info)
@@ -109,23 +112,44 @@ def tiempo_restante(tarea):
             return "⚠️ Fecha incorrecta"
     return "Sin fecha límite"
 
-# Marcar  desmarcar tareas
+#Cumplimiento
+def Cumplimiento(tarea):
+    if not tarea["completada"]:
+        return "❌ Sin completar"
+
+    if tarea["fecha_limite"] in [None, "Sin fecha", ""]:
+        return "✅ Completada"
+
+    if tarea.get("completada_a_tiempo"):
+        return "✅ En tiempo 👍👍👍"
+    
+    return "⚠️ Completada fuera de tiempo"
+
+
+# Marcar o desmarcar tareas
 def marcar_tarea(tareas):
     listar_tareas(tareas)
     id_select = input("\nIngrese ID de la tarea a marcar/desmarcar: ")
-    
+
     try:
         id_select = int(id_select)
         for tarea in tareas:
-            if tarea['id'] == id_select:
+            if tarea["id"] == id_select:
                 tarea["completada"] = not tarea["completada"]
+
+                # Si se completa, verificamos si aún estaba dentro del tiempo
+                if tarea["completada"]:
+                    tarea["completada_a_tiempo"] = tiempo_restante(tarea) not in ["⏳ Vencida", "⚠️ Fecha incorrecta"]
+
                 guardar_tareas(tareas)
                 estado = "✔️" if tarea["completada"] else "❌"
                 print(f"[{estado}] Tarea '{tarea['descripcion']}' actualizada.")
                 return
+
         print("⚠️ No se encontró una tarea con ese ID.")
     except ValueError:
         print("⚠️ Ingresa un número válido.")
+
 
 # Eliminar tarea
 def eliminar_tareas(tareas):

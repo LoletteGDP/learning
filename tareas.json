@@ -39,7 +39,8 @@
         "id": 7,
         "descripcion": "Fecha limite",
         "completada": true,
-        "fecha_limite": "12-03-2025 16:00"
+        "fecha_limite": "12-03-2025 16:00",
+        "completada_a_tiempo": true
     },
     {
         "id": 8,
