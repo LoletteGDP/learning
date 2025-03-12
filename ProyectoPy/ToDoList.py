@@ -19,10 +19,28 @@ def guardar_tareas(tareas):
         json.dump(tareas, archivo, indent=4)
 
 # Agregar tarea
-def agregar_tarea(tareas, descripcion):
+def agregar_tarea(tareas, descripcion, importancia):
+    bucle = 1
+    while (bucle == 1):
+        if importancia == "1":
+            importancia = "alta"
+            bucle = 0
+        elif importancia == "2":
+            importancia = "media"
+            bucle = 0
+        elif importancia == "3":
+            importancia = "baja"
+            bucle = 0
+        else:
+            print("⚠️ Opción no válida, intenta de nuevo.")
+            print("1. alta")
+            print("2. media")
+            print("3. baja")
+            importancia = input("\nIngrese nivel de importancia:")            
     nueva_tarea = {
         "id": len(tareas) + 1,  # ID autoincremental
         "descripcion": descripcion,
+        "prioridad": importancia,
         "completada": False,
         "fecha_limite": None  # Inicialmente sin fecha límite
     }
@@ -36,15 +54,62 @@ def listar_tareas(tareas):
         print("📭 No hay tareas registradas.")
         return
     
-    print("\n📋 Lista de tareas:")
-    for tarea in tareas:
-        estado = "✔️" if tarea["completada"] else "❌"
-        fecha_limite = tarea.get("fecha_limite", "Sin fecha")  # Evita errores
-        
-        tiempo = tiempo_restante(tarea) if fecha_limite != "Sin fecha" else "N/A"
-        print(f"{tarea['id']}. {tarea['descripcion']} [{estado}] - Fecha límite: {fecha_limite} - ⏳ {tiempo}")
+    # Crear listas para cada nivel de prioridad
+    tareas_alta = []
+    tareas_media = []
+    tareas_baja = []
 
-# Marcar o desmarcar tareas
+    # Clasificar tareas según su prioridad
+    for tarea in tareas:
+        prioridad = tarea.get("prioridad", "baja").strip().lower()  # Asume "baja" si no tiene prioridad
+        
+        # Calcular el tiempo restante si tiene fecha límite
+        fecha_limite = tarea.get("fecha_limite", "Sin fecha")
+        tiempo = tiempo_restante(tarea) if fecha_limite != "Sin fecha" else "N/A"
+
+        estado = "✔️" if tarea["completada"] else "❌"
+        tarea_info = f"{tarea['id']}. {tarea['descripcion']} [{estado}]\n - Fecha límite: {fecha_limite} - ⏳ Tiempo restante: {tiempo}"
+
+        if prioridad == "alta":
+            tareas_alta.append(tarea_info)
+        elif prioridad == "media":
+            tareas_media.append(tarea_info)
+        else:
+            tareas_baja.append(tarea_info)
+
+    # Mostrar tareas organizadas
+    if tareas_alta:
+        print("\n🔥 Tareas de Alta Prioridad:")
+        for tarea in tareas_alta:
+            print(tarea)
+
+    if tareas_media:
+        print("\n⚖️ Tareas de Prioridad Media:")
+        for tarea in tareas_media:
+            print(tarea)
+
+    if tareas_baja:
+        print("\n🟢 Tareas de Baja Prioridad:")
+        for tarea in tareas_baja:
+            print(tarea)
+
+# Calcular tiempo restante de una tarea
+def tiempo_restante(tarea):
+    fecha_texto = tarea.get("fecha_limite")
+    if fecha_texto:
+        try:
+            fecha_obj = datetime.strptime(fecha_texto, "%d-%m-%Y %H:%M")
+            tiempo_rest = fecha_obj - datetime.now()
+
+            if tiempo_rest.total_seconds() > 0:
+                return f"{tiempo_rest.days} días, {tiempo_rest.seconds // 3600} horas"
+            else:
+                return "⏳ Vencida"
+        except ValueError:
+            return "⚠️ Fecha incorrecta"
+    return "Sin fecha límite"
+
+# Marcar  desmarcar tareas
 def marcar_tarea(tareas):
     listar_tareas(tareas)
     id_select = input("\nIngrese ID de la tarea a marcar/desmarcar: ")
@@ -107,22 +172,6 @@ def limitar_fecha(tareas):
     except ValueError:
         print("⚠️ Ingresa un formato de fecha válido.")
 
-# Calcular tiempo restante de una tarea
-def tiempo_restante(tarea):
-    fecha_texto = tarea.get("fecha_limite")
-    if fecha_texto:
-        try:
-            fecha_obj = datetime.strptime(fecha_texto, "%d-%m-%Y %H:%M")
-            tiempo_rest = fecha_obj - datetime.now()
-
-            if tiempo_rest.total_seconds() > 0:
-                return f"{tiempo_rest.days} días, {tiempo_rest.seconds // 3600} horas"
-            else:
-                return "⏳ Vencida"
-        except ValueError:
-            return "⚠️ Fecha incorrecta"
-    return "N/A"
-
 # Función principal del menú
 def main():
     tareas = cargar_tareas()
@@ -140,7 +189,11 @@ def main():
 
         if opcion == "1":
             descripcion = input("Describe la nueva tarea: ")
-            agregar_tarea(tareas, descripcion)
+            print("1. alta")
+            print("2. media")
+            print("3. baja")
+            importancia = input("\nIngrese nivel de importancia:")
+            agregar_tarea(tareas, descripcion, importancia)
 
         elif opcion == "2":
             listar_tareas(tareas)
